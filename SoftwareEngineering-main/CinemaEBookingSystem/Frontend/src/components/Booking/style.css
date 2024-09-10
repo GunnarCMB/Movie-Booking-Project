@@ -1,0 +1,100 @@
+
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+    background-color: #1a1a1a; /* Dark background for cinema feel */
+    color: #fff; /* Light text color for contrast */
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    background-color: #ad2121;
+    padding: 10px 5%;
+    color: #fff;
+}
+
+
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between
+}
+
+.nav-links li {
+    display: inline-block;
+    margin: 0 15px;
+}
+
+.nav-links li a {
+    text-decoration: none;
+    color: #fff;
+    padding: 5px 0;
+    position: relative;
+}
+
+
+
+.nav-links li a::after {
+    content: '';
+    background: #500505;
+    width: 0;
+    height: 2px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    transition: width 0.5s;
+}
+
+.nav-links li a:hover::after {
+    width: 100%;
+}
+
+.container {
+    flex: 1;
+    width: 90%;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.movie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    width: auto;
+    margin: 0 auto;
+    justify-content: center;
+}
+
+.card {
+    border: 1px solid #444; /* Subtle borders for cards */
+    background-color: #333; /* Darker card backgrounds */
+    padding: 10px;
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: scale(1.05); /* Slight scale on hover to add interaction */
+}
+
+.card img {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+}
+
+.card h3 {
+    margin-top: 10px;
+}
+
+.footer {
+    background-color: #ad2121;
+    padding: 10px 0;
+    width: 100%;
+    text-align: center;
+}

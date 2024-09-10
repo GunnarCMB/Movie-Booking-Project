@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Book Movie Page</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="header">
+    <nav>
+        <h3>E-Cinema Booking</h3>
+        <ul class="nav-links">
+            <li><a href="../HomePage/home.html">Home</a></li>
+            <li><a id="backToMovieLink" href="#">Back to Movie</a></li> <!-- Set href dynamically -->
+          </ul>
+    </nav>
+</div>
+<div class="container">
+    <div class="wave"></div>
+    <h2>Book Movie</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Showtime</th>
+
+        </tr>
+        </thead>
+        <tbody id="selectedShowtime"></tbody>
+    </table>
+    <h3> Select Tickets</h3>
+    <form id="ticketForm">
+        <!-- Ticket prices based on promotion status will be handled in script -->
+        <div id="ticketLabels"></div>
+
+        <button type="submit">Confirm Tickets & Select Seats</button>
+        <p class="error" id="error"></p>
+    </form>
+</div>
+
+<script>
+
+    const movieTitle = localStorage.getItem('movieTitle');
+    const bookfee = localStorage.getItem('bookfee'); // Retrieve the booking fee
+
+    if (movieTitle) {
+        document.querySelector('h2').textContent = `Book ${movieTitle}`;
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        const showtimeId = new URLSearchParams(window.location.search).get('showtime_id');
+        const displayPrice = parseFloat(localStorage.getItem('displayPrice'));
+
+        if (!showtimeId) {
+            alert('No showtime ID found in the URL.');
+            return;
+        }
+
+        fetch(`/api/showtimes/details/${showtimeId}`)
+            .then(response => response.json())
+            .then(showtime => {
+                const showtimeElement = document.getElementById('selectedShowtime');
+                showtimeElement.innerHTML = `
+                    <tr><td>${new Date(showtime.showtime).toLocaleString()}</td></tr>
+                `;
+                document.getElementById('backToMovieLink').href = `movie.html?movie_id=${showtime.movie_id}`;
+                setupTicketForm(displayPrice);
+            })
+            .catch(error => {
+                console.error('Failed to fetch showtime:', error);
+                alert('Failed to load showtime details. Please try again.');
+            });
+
+        function setupTicketForm(price) {
+            const ticketLabels = document.getElementById('ticketLabels');
+            ticketLabels.innerHTML = `
+                <div>
+                    <label>Adult Tickets - $${price.toFixed(2)}</label>
+                    <input type="number" id="num_adult" value="0" min="0">
+                </div>
+                <div>
+                    <label>Senior Tickets - $${(price - 1.50).toFixed(2)}</label>
+                    <input type="number" id="num_senior" value="0" min="0">
+                </div>
+                <div>
+                    <label>Child Tickets - $${(price - 1.00).toFixed(2)}</label>
+                    <input type="number" id="num_child" value="0" min="0">
+                </div>
+                <div>
+                    <p>There is a $${bookfee} booking fee. This bookfee is included in the total price.</p> <!-- Include the booking fee disclaimer -->
+                </div>
+            `;
+
+            document.getElementById('ticketForm').onsubmit = calculateTotal;
+        }
+
+        function calculateTotal(event) {
+            event.preventDefault();
+            const numAdult = parseInt(document.getElementById('num_adult').value) || 0;
+            const numSenior = parseInt(document.getElementById('num_senior').value) || 0;
+            const numChild = parseInt(document.getElementById('num_child').value) || 0;
+            const adultPrice = parseFloat(localStorage.getItem('displayPrice'));
+            const seniorPrice = adultPrice - 1.50;
+            const childPrice = adultPrice - 1.00;
+            const bookfeeP = parseFloat(bookfee);
+
+            const totalTickets = numAdult + numSenior + numChild;
+            const totalPrice = (numAdult * adultPrice) + (numSenior * seniorPrice) + (numChild * childPrice) + (bookfeeP);
+
+            const movieTitle = localStorage.getItem('movieTitle'); // Assuming this is stored correctly
+            const showtimeDateTime = new Date(document.querySelector('#selectedShowtime tr td').textContent);
+            const formattedShowtimeDateTime = `${showtimeDateTime.getFullYear()}-${(showtimeDateTime.getMonth() + 1).toString().padStart(2, '0')}-${showtimeDateTime.getDate().toString().padStart(2, '0')} ${showtimeDateTime.getHours().toString().padStart(2, '0')}:${showtimeDateTime.getMinutes().toString().padStart(2, '0')}:${showtimeDateTime.getSeconds().toString().padStart(2, '0')}`;
+
+
+            // Prepare booking data
+            const bookingData = {
+                userId: localStorage.getItem('userID'),
+                showtimeId: new URLSearchParams(window.location.search).get('showtime_id'),
+                numAdultTickets: numAdult,
+                numSeniorTickets: numSenior,
+                numChildTickets: numChild,
+                totalPrice: totalPrice,
+                movieTitle: movieTitle,
+                showtimeDateTime: formattedShowtimeDateTime
+            };
+
+            // Make POST request to the server
+            fetch('/api/bookings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(bookingData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    window.location.href = `selectSeats.html?orderId=${data.orderId}`;
+                })
+                .catch(error => {
+                    console.error('Error booking movie:', error);
+                    // Handle errors here
+                });
+
+            // Display alert for testing purposes
+            alert(`Adult Tickets: ${numAdult}\nSenior Tickets: ${numSenior}\nChild Tickets: ${numChild}\nTotal Tickets: ${totalTickets}\nTotal Price: $${totalPrice.toFixed(2)}`);
+        }
+
+    });
+</script>
+
+<div class="footer">
+    <div class="item">
+        <a>&copy; E-Cinema</a>
+    </div>
+</div>
+</body>
+</html>

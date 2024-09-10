@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Showtime</title>
+  <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="header">
+  <nav>
+    <h3>E-Cinema Add Showtime</h3>
+    <ul class="nav-links">
+      <li><a href="manageMovies.html">Back to Manage Movies</a></li>
+    </ul>
+  </nav>
+</div>
+<div class="container">
+  <h2>Add New Showtime</h2>
+  <form id="addShowtimeForm">
+    <label for="showtime">Showtime:</label>
+    <input type="datetime-local" id="showtime" name="showtime" required>
+
+    <button type="submit">Add Showtime</button>
+  </form>
+</div>
+<div class="footer">
+  <div class="item">
+    <a>&copy; E-Cinema</a>
+  </div>
+</div>
+<script>
+  const movieId = new URLSearchParams(window.location.search).get('movie_id'); // Get movie ID from URL query parameters
+
+  document.getElementById('addShowtimeForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const showtime = document.getElementById('showtime').value;
+
+    try {
+      const response = await fetch(`/api/showtimes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ movieId, showtime }),
+      });
+
+      if (response.ok) {
+        alert('Showtime added successfully.');
+        window.location.href = `editMovie.html?movie_id=${movieId}`; // Redirect back to the movie edit page
+      } else {
+        throw new Error('Failed to add showtime.');
+      }
+    } catch (error) {
+      alert('Error: ' + error.message);
+    }
+  });
+</script>
+</body>
+</html>

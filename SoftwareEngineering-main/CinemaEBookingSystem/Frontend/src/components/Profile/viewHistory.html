@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Order History</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+
+<body>
+<div class="header">
+    <nav>
+        <h3>E-Cinemma Booking</h3>
+        <ul class="nav-links">
+            <li><a href="../HomePage/home.html">Home</a></li>
+            <li><a href="../Profile/profile.html">View Profile</a></li>
+        </ul>
+    </nav>
+</div>
+<div class="container">
+    <h2>Purchase History</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Booking Number</th>
+            <th>Movie</th>
+            <th>Showtime</th>
+            <th>Seat(s)</th>
+            <th>Total</th>
+            <th>Card Used(id)</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Add rows dynamically based on user's purchase history -->
+        </tbody>
+    </table>
+</div>
+
+<div class="footer">
+    <div class="item">
+        <a>&copyE-Cinemma</a>
+    </div>
+</div>
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const userId = localStorage.getItem('userID');
+        if (!userId) {
+            console.error('User ID is not set in localStorage');
+            return; // Exit if no user ID is available
+        }
+
+        fetch(`/api/orders/user/${userId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch orders');
+                }
+                return response.json();
+            })
+            .then(orders => {
+                if (orders.length === 0) {
+                    console.log('No orders found for user');
+                    return; // Handle case where no orders are found
+                }
+                const tableBody = document.querySelector('tbody');
+                orders.forEach(order => {
+                    const localTimeString = new Date(order.showtime_datetime).toLocaleString();
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                    <td>${order.order_id}</td>
+                    <td>${order.movie_title}</td>
+                    <td>${localTimeString}</td>
+                    <td>${order.seats_chosen || 'N/A'}</td>
+                    <td>$${order.total_price}</td>
+                    <td>${order.card_id || 'N/A'}</td>
+                    <td>${order.status}</td>
+                    <td><button onclick="deleteOrder(${order.order_id})">Delete</button></td>
+                `;
+                    row.id = `order-${order.order_id}`;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching order history:', error);
+                // Optionally display a message in the UI about the error
+            });
+    });
+
+
+
+    // Function to handle order deletion
+    function deleteOrder(orderId) {
+        console.log('Deleting order with ID:', orderId); // Debugging statement
+        // Send a DELETE request to your server to delete the order with the given orderId
+        fetch(`/api/orders/${orderId}`, {
+            method: 'DELETE'
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Remove the corresponding row from the table if deletion is successful
+                    const row = document.getElementById(`order-${orderId}`);
+                    row.remove();
+                } else {
+                    console.error('Failed to delete order');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting order:', error);
+            });
+    }
+
+</script>
+
+</html>

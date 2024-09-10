@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Create User</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+
+<body>
+<div class="header">
+    <nav>
+        <h3>E-Cinemma Booking</h3>
+        <ul class="nav-links">
+            <li><a href="../HomePage/home.html">Home</a></li>
+            <li><a href="../Admin/manageUsers.html">View Users</a></li>
+        </ul>
+    </nav>
+</div>
+<div class="container">
+    <div class="wave"></div>
+    <h2>Create User</h2>
+    <h4>Required *</h4>
+    <form id="createUserForm">
+        <!-- Existing fields for normal user registration -->
+        <label for="newFirstName">First Name</label>
+        <input type="text" id="newFirstName" name="newFirstName" placeholder="Enter your first name">
+
+        <label for="newLastName">Last Name</label>
+        <input type="text" id="newLastName" name="newLastName" placeholder="Enter your last name">
+
+        <label for="newUsername">Username *</label>
+        <input type="text" id="newUsername" name="newUsername" placeholder="Enter your username" required>
+
+        <label for="newPassword">Password *</label>
+        <input type="password" id="newPassword" name="newPassword" placeholder="Enter your password" required>
+
+        <label for="newEmail">Email</label>
+        <input type="email" id="newEmail" name="newEmail" placeholder="Enter your email">
+
+        <label for="newPhone">Phone</label>
+        <input type="text" id="newPhone" name="newPhone" placeholder="Enter your phone number">
+
+        <label for="newCreditCard">Credit Card</label>
+        <input type="text" id="newCreditCard" name="newCreditCard" placeholder="Enter your credit card">
+
+        <label for="newBillingAddress">Billing Address</label>
+        <input type="text" id="newBillingAddress" name="newBillingAddress" placeholder="Enter your address">
+
+        <label for="newPromotion">Enable Promotions</label>
+        <input type="checkbox" id="newPromotion" name="newPromotion">
+
+        <!-- New fields for admin-specific options -->
+        <label for="newActive">Active</label>
+        <input type="checkbox" id="newActive" name="newActive">
+
+        <label for="newType">User Type *</label>
+        <select id="newType" name="newType" required>
+            <option value="1">Admin</option>
+            <option value="2">User</option>
+        </select>
+
+        <button type="submit">Create User</button>
+        <p class="error" id="error"></p>
+    </form>
+</div>
+
+<script>
+    document.getElementById("createUserForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        // Error message element
+        const errorMessage = document.getElementById("error");
+
+        // Form data
+        const formData = {
+            firstName: document.getElementById("newFirstName").value.trim(),
+            lastName: document.getElementById("newLastName").value.trim(),
+            username: document.getElementById("newUsername").value.trim(),
+            password: document.getElementById("newPassword").value.trim(),
+            email: document.getElementById("newEmail").value.trim(),
+            phone: document.getElementById("newPhone").value.trim(),
+            creditCard: document.getElementById("newCreditCard").value.trim(),
+            billingAddress: document.getElementById("newBillingAddress").value.trim(),
+            enablePromotion: document.getElementById("newPromotion").checked,
+            active: document.getElementById("newActive").checked, // Set active status
+            type: document.getElementById("newType").value // Set user type
+        };
+
+        // Validation for required fields
+        if ( !formData.username || !formData.password) {
+            errorMessage.innerText = "First name, username, and password are required.";
+            return; // Stop the function if validation fails
+        }
+
+        // Send request to the server
+        try {
+            const response = await fetch('/user/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (response.status === 409) {
+                errorMessage.innerText = "An account with the given email or username already exists.";
+            } else if (response.status === 201) {
+                errorMessage.innerText = "User created successfully.";
+                // Display alert with user details
+                alert(`The user was created successfully`);
+                window.location.href = 'manageUsers.html';
+            } else {
+                errorMessage.innerText = "An unexpected error occurred. Please try again.";
+            }
+        } catch (error) {
+            console.error('Error creating user:', error);
+            errorMessage.innerText = "An error occurred during user creation. Please try again.";
+        }
+    });
+
+</script>
+
+<div class="footer">
+    <div class="item">
+        <a>&copyE-Cinemma</a>
+    </div>
+</div>
+</body>
+
+</html>

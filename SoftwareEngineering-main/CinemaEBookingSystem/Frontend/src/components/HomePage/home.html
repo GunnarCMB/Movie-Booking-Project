@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>homepage</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .search-container {
+            text-align: center !important;
+            margin-top: 8px;
+        }
+
+        .container {
+            max-width: 1200px;
+            /* Set a max-width to control the width of the container */
+            margin: 0 auto;
+            /* Center the container horizontally */
+            padding: 20px;
+            /* Add some padding for spacing */
+        }
+
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            width: auto;
+            max-width: 960px;
+            margin: 0 auto;
+            justify-content: center;
+        }
+
+        .movie-card {
+            flex: 1 1 300px;
+            /* Flex item properties (flex-grow, flex-shrink, flex-basis) */
+            /* Adjust the width as needed, 300px is just an example */
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+
+
+</head>
+
+<body>
+    <h1>Homepage</h1>
+    <header class="top-nav">
+
+        <div class="search-container">
+            <input type="text" id="searchInput" onkeyup="searchMovies()" placeholder="Search for movies...">
+        </div>
+
+        <div id="authButtons">
+            <a id="loginBtn" href="../Login/login.html" class="button">Login</a> <!-- edit in style file-->
+            <button id="logoutBtn" style="display:none;" onclick="logout()">Logout</button>
+            <button id="bookingButton">Book Tickets</button>
+        </div>
+    </header>
+
+    <div class="banner">
+        <img src="../../assets/logo.jpeg" alt="Site Banner Image">
+    </div>
+
+    <div>
+        <h1>Currently Playing</h1>
+    </div>
+
+    <div class="container">
+        <div id="movieGrid" class="movie-grid">
+            <!-- Movie cards will be dynamically inserted here -->
+        </div>
+    </div>
+
+
+    <script src="movieDataFetcher.js"></script>
+
+
+    <div>
+        <h1> Coming Soon</h1>
+    </div>
+
+
+    <main class="movie-cards">
+        <!-- Example of a movie card -->
+        <div class="card" onclick="showTrailer('dune_part_2')">
+            <img src="https://upload.wikimedia.org/wikipedia/en/5/52/Dune_Part_Two_poster.jpeg" alt="img">
+            <h3>Dune: Part Two</h3>
+            <p>Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who
+                destroyed his family, facing a choice between love and fate.</p>
+        </div>
+
+        <div class="card" onclick="showTrailer('godzilla_x_kong')">
+            <img src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcR1E1nnT2keOg85bpxUFnbomrBRV8AWYJie62YOJNYsuyMcBYYn"
+                alt="img">
+            <h3>Godzilla x Kong</h3>
+            <p>Two ancient titans, Godzilla and Kong, clash in an epic battle as humans unravel their intertwined
+                origins and connection to Skull Island's mysteries.</p>
+        </div>
+
+        <div class="card" onclick="showTrailer('deadpool_3')">
+            <img src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRUMviMiC0orG2repIiIe5ZcyWmBRaENR4MQqtxu1Le5NIonmv4"
+                alt="img">
+            <h3>Deadpool 3</h3>
+            <p>Wolverine is recovering from his injuries when he crosses paths with the loudmouth, Deadpool. They team
+                up to defeat a common enemy.</p>
+        </div>
+        <div class="footer">
+            <a>&copy; E-Cinema</a>
+        </div>
+
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const username = localStorage.getItem('username');
+            const userType = localStorage.getItem('userType');
+
+            const authButtons = document.getElementById("authButtons");
+
+            if (username) {
+                if (username) {
+                    authButtons.innerHTML = '<button id="logoutBtn" onclick="logout()">Logout</button>';
+                    const viewProfileButton = document.createElement('button');
+                    viewProfileButton.textContent = 'View Profile';
+                    viewProfileButton.addEventListener('click', function () {
+                        // Redirect based on user type
+                        if (userType === '1') { // Admin user
+                            window.location.href = '../Admin/adminProfile.html';
+                        } else { // Regular user
+                            window.location.href = '../Profile/profile.html';
+                        }
+                    });
+                    authButtons.appendChild(viewProfileButton);
+                    // Add booking button
+                    const bookingButton = document.createElement('button');
+                    bookingButton.textContent = 'Book Tickets';
+                    bookingButton.id = 'bookingButton';
+                    bookingButton.addEventListener('click', function () {
+                        window.location.href = '../Booking/buyTickets.html';
+                    });
+                    authButtons.appendChild(bookingButton);
+                } else {
+                    authButtons.innerHTML = '<a id="loginBtn" href="../Login/login.html">Login</a>';
+                }
+            }
+
+            // Add event listener for booking button
+            const bookingButton = document.getElementById("bookingButton");
+            if (bookingButton) {
+                bookingButton.addEventListener('click', function () {
+                    if (username) {
+                        window.location.href = '../Booking/buyTickets.html';
+                    } else {
+                        window.location.href = '../Login/login.html';
+                    }
+                });
+            }
+
+        });
+
+        function logout() {
+
+            localStorage.removeItem('username');
+            localStorage.removeItem('userID');
+            localStorage.removeItem('userType');
+
+            localStorage.clear();
+
+            location.reload(); // Refresh the page
+        }
+
+        function searchMovies() {
+            var input, filter, cards, card, title, category, i;
+            input = document.getElementById("searchInput");
+            filter = input.value.toUpperCase();
+            cards = document.getElementsByClassName("card");
+            for (i = 0; i < cards.length; i++) {
+                title = cards[i].getElementsByTagName("h3")[0].textContent.toUpperCase();
+                category = cards[i].getElementsByTagName("h5")[0].textContent.toUpperCase();
+                if (title.indexOf(filter) > -1 || category.indexOf(filter) > -1) {
+                    cards[i].style.display = "";
+                } else {
+                    cards[i].style.display = "none";
+                }
+            }
+        }
+
+
+        function searchByDate(dateString) {
+            console.log('search by date');
+            const date = new Date(dateString);
+            const cards = document.getElementsByClassName("card");
+            for (let i = 0; i < cards.length; i++) {
+                const card = cards[i];
+                const showtimes = card.getElementsByTagName("p")[1].innerHTML.split('<br>'); // Get the showtimes from the card
+                const showDates = showtimes.map(showtime => {
+                    const showDate = new Date(showtime);
+                    return showDate.toISOString().split('T')[0]; // Convert to ISO date format (YYYY-MM-DD)
+                });
+                if (showDates.includes(date.toISOString().split('T')[0])) {
+                    card.style.display = "";
+                } else {
+                    card.style.display = "none";
+                }
+            }
+        }
+
+
+        document.getElementById("searchInput").addEventListener("keyup", function (event) {
+            if (event.keyCode === 13) { // Check if Enter key is pressed
+                const input = this.value.trim();
+                if (input.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                    searchByDate(input);
+                } else {
+                    searchMovies();
+                }
+            }
+        });
+
+
+    </script>
+
+
+</body>
+
+</html>

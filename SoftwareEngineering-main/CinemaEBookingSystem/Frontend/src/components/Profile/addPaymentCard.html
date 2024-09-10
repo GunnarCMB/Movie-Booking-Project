@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Payment Card</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="header">
+    <nav>
+        <h3>E-Cinema Add Payment Card</h3>
+        <ul class="nav-links">
+            <li><a href="paymentCards.html">Back to Payment Cards</a></li>
+        </ul>
+    </nav>
+</div>
+<div class="container">
+    <h2>Add New Payment Card</h2>
+    <form id="addPaymentCardForm">
+        <label for="cardNumber">Card Number:</label>
+        <input type="text" id="cardNumber" name="cardNumber" placeholder="Enter card number" required>
+
+        <label for="billingAddress">Billing Address:</label>
+        <input type="text" id="billingAddress" name="billingAddress" placeholder="Enter billing address" required>
+
+        <label for="expirationDate">Expiration Date:</label>
+        <input type="date" id="expirationDate" name="expirationDate" required>
+
+        <button type="submit">Add Card</button>
+    </form>
+</div>
+<div class="footer">
+    <div class="item">
+        <a>&copy; E-Cinema</a>
+    </div>
+</div>
+<script>
+    document.getElementById('addPaymentCardForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const cardNumber = document.getElementById('cardNumber').value;
+        const billingAddress = document.getElementById('billingAddress').value;
+        const expirationDate = document.getElementById('expirationDate').value;
+        const userId = localStorage.getItem('userID'); // Assuming user ID is stored in localStorage
+
+        const response = await fetch(`/api/payment-cards/${userId}`);
+        const cards = await response.json();
+
+        if (cards.length >= 3) {
+            alert("You cannot have more than three payment cards.");
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/payment-cards', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userId, cardNumber, billingAddress, expirationDate }),
+            });
+
+            if (response.ok) {
+                alert('Payment card added successfully.');
+                window.location.href = 'paymentCards.html';
+            } else {
+                throw new Error('Failed to add payment card.');
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    });
+</script>
+</body>
+</html>

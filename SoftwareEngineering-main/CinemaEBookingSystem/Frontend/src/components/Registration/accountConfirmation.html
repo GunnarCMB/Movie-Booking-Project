@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Registration Successful</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+
+<body>
+    <div class="header">
+        <nav>
+            <h3>E-Cinemma Booking</h3>
+            <ul class="nav-links">
+                <li><a href="../HomePage/home.html">Home</a></li>
+                <li><a href="../Login/login.html">Login</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div id="confirmation">
+        <h2>Registration Successful</h2>
+        <p>A confirmation email has been sent to your email address. Please enter the following information along with
+            the code given in the email.</p>
+        <form id="verificationForm">
+            <label for="email"> Email *</label>
+            <input type="text" id="email" name="email" placeholder="Enter registered email">
+            <label for="username">Username *</label>
+            <input type="text" id="username" name="username" placeholder="Enter registered username">
+            <label for="verificationCode">Verification Code *</label>
+            <input type="text" id="verificationCode" name="verificationCode" placeholder="Enter verification code">
+            <button type="submit">Verify</button>
+        </form>
+        <p class="error" id="error"></p>
+    </div>
+
+    <script>
+        document.getElementById("verificationForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const email = document.getElementById("email").value;
+            const username = document.getElementById("username").value;
+            const verificationCode = document.getElementById("verificationCode").value.trim();
+
+            try {
+                const response = await fetch('/user/verify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, username, verificationCode }),
+                });
+
+                if (response.status === 200) {
+                    alert("Account activated successfully. Redirecting to login...");
+                    window.location.href = '../Login/login.html'; // Redirect to login page
+                } else {
+                    const errorData = await response.json();
+                    errorMessage.innerText = errorData.message || "Invalid activation code, try again.";
+                }
+            } catch (error) {
+                console.error('Verification failed:', error);
+                errorMessage.innerText = "An error occurred. Please try again";
+            }
+        });
+    </script>
+
+    <div class="footer">
+        <div class="item">
+            <a>&copyE-Cinemma</a>
+        </div>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,78 @@
+<!-- adminprofile.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>E-Cinemma Admin Profile</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="header">
+    <nav>
+        <h3>E-Cinemma Admin Profile</h3>
+        <ul class="nav-links">
+            <li><a href="../HomePage/home.html">Home</a></li>
+            <li class="btn"><a href=""> View Profile </a></li>
+            <li><a href="manageUsers.html">View Users</a></li>
+            <li><a href="manageMovies.html">Manage Movie</a></li>
+        </ul>
+    </nav>
+</div>
+<div class="container">
+    <h2>Admin Profile</h2>
+    <div class="profile-card">
+        <label for="userID">User ID:</label>
+        <h4 id="userID">CurrentUserID</h4>
+
+        <label for="username">Username:</label>
+        <h4 id="username">CurrentUsername</h4>
+
+        <label for="email">Email:</label>
+        <h4 id="email">CurrentEmail</h4>
+
+        <label for="firstName">First Name:</label>
+        <h4 id="firstName">CurrentFirstName</h4>
+
+        <label for="lastName">Last Name:</label>
+        <h4 id="lastName">CurrentLastName</h4>
+    </div>
+    <button id="editProfileBtn">Edit Profile</button>
+</div>
+<div class="footer">
+    <div class="item">
+        <a>&copyE-Cinemma</a>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", async function () {
+        // Get user ID from local storage
+        const userId = localStorage.getItem('userID');
+
+        try {
+            // Fetch user data from the server
+            const response = await fetch(`/api/users/${userId}`);
+            if (response.ok) {
+                const userData = await response.json();
+                // Update HTML elements with user information
+                document.getElementById('userID').textContent = userData.user_id;
+                document.getElementById('username').textContent = userData.username;
+                document.getElementById('email').textContent = userData.email;
+                document.getElementById('firstName').textContent = userData.first_name;
+                document.getElementById('lastName').textContent = userData.last_name;
+            } else {
+                throw new Error('Failed to fetch user data');
+            }
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            // You can handle the error here, e.g., show an error message to the user
+        }
+    });
+
+    // Add event listener to the "Edit Profile" button
+    document.getElementById('editProfileBtn').addEventListener('click', function () {
+        window.location.href = 'editProfile.html'; // Redirect to editProfile.html
+    });
+</script>
+
+</body>
+</html>

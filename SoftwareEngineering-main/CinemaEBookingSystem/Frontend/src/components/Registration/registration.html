@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Create Account Page</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+
+<body>
+    <div class="header">
+        <nav>
+            <h3>E-Cinemma Booking</h3>
+            <ul class="nav-links">
+                <li><a href="../HomePage/home.html">Home</a></li>
+                <li><a href="../Login/login.html">Login</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="container">
+        <div class="wave"></div>
+        <h2>Create Account</h2>
+        <h4>required *</h4>
+        <form id="createUserForm">
+            <label for="newFirstName">First Name *</label>
+            <input type="text" id="newFirstName" name="newFirstName" placeholder="Enter your first name">
+
+            <label for="newLastName">Last Name</label>
+            <input type="text" id="newLastName" name="newLastName" placeholder="Enter your last name">
+
+            <label for="newPhone">Phone Number</label>
+            <input type="text" id="newPhone" name="newPhone" placeholder="Enter your phone number">
+
+            <label for="newEmail">Email *</label>
+            <input type="text" id="newEmail" name="newEmail" placeholder="Enter your email">
+
+            <label for="newUsername">Username *</label>
+            <input type="text" id="newUsername" name="newUsername" placeholder="Enter your username">
+
+            <label for="newPassword">Password *</label>
+            <input type="password" id="newPassword" name="newPassword" placeholder="Enter your password">
+
+            <label for="newCreditCard">Credit Card</label>
+            <input type="text" id="newCreditCard" name="newCreditCard" placeholder="Enter your credit card">
+
+            <label for="newBillingAddress">Billing Address</label>
+            <input type="text" id="newBillingAddress" name="newBillingAddress" placeholder="Enter your address">
+
+            <label for="newPromotion">Enable Promotions</label>
+            <input type="checkbox" id="newPromotion" name="newPromotion">
+
+
+            <button type="submit">Create Account</button>
+            <p class="error" id="error"></p>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("createUserForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            // Error message element
+            const errorMessage = document.getElementById("error");
+
+            // Form data
+            const formData = {
+                firstName: document.getElementById("newFirstName").value.trim(),
+                lastName: document.getElementById("newLastName").value.trim(),
+                username: document.getElementById("newUsername").value.trim(),
+                password: document.getElementById("newPassword").value.trim(),
+                email: document.getElementById("newEmail").value.trim(),
+                phone: document.getElementById("newPhone").value.trim(),
+                creditCard: document.getElementById("newCreditCard").value.trim(),
+                billingAddress: document.getElementById("newBillingAddress").value.trim(),
+                enablePromotion: document.getElementById("newPromotion").checked,
+                active: false, // Set active to false
+                type: 2 // Set type to 2 (default user type)
+            };
+
+            // Validation for required fields
+            if (!formData.firstName || !formData.email || !formData.username || !formData.password) {
+                errorMessage.innerText = "First name, email, username, and password are required.";
+                return; // Stop the function if validation fails
+            }
+
+            // Send request to the server
+            try {
+                const response = await fetch('/user/register', { // Corrected endpoint
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                });
+
+                if (response.status === 409) {
+                    errorMessage.innerText = "An account with the given email or username already exists.";
+                } else if (response.status === 201) {
+                    errorMessage.innerText = "Account created successfully. Redirecting to verification page...";
+                    setTimeout(() => {
+                        window.location.href = 'accountConfirmation.html';
+                    }, 2000); // Redirect to verification page after 2 seconds
+                } else {
+                    errorMessage.innerText = "A invalid email was entered or an unexpected error occurred. Please try again.";
+                }
+            } catch (error) {
+                console.error('Error creating user:', error);
+                errorMessage.innerText = "An error occurred during user creation. Please try again.";
+            }
+        });
+
+    </script>
+
+
+    <div class="footer">
+        <div class="item">
+            <a>&copyE-Cinemma</a>
+        </div>
+    </div>
+</body>
+
+</html>

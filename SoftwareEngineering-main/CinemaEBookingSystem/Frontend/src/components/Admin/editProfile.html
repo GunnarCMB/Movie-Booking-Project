@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Edit Profile</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+
+<body>
+<div class="header">
+    <nav>
+        <h3>E-Cinemma Admin Panel</h3>
+        <ul class="nav-links">
+            <li><a href="adminprofile.html">Back to Admin Profile</a></li>
+        </ul>
+    </nav>
+</div>
+<div class="container">
+    <h2>Edit Profile</h2>
+    <form id="editProfileForm">
+        <div class="user-details">
+            <!-- User details will be dynamically added here -->
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+</div>
+
+<div class="footer">
+    <div class="item">
+        <a>&copy; E-Cinemma</a>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('DOMContentLoaded', async (event) => {
+        const userId = localStorage.getItem('userID');
+
+        try {
+            const response = await fetch(`/api/users/${userId}`);
+            if (response.ok) {
+                const userData = await response.json();
+                console.log("User fetched:", userData); // This will show the user data fetched from the server
+                const userDetailsContainer = document.querySelector('.user-details');
+
+                // Loop through each property of the user object and create corresponding elements
+                for (const key in userData) {
+                    if (userData.hasOwnProperty(key)) {
+                        const infoItem = document.createElement('div');
+                        infoItem.classList.add('info-item');
+
+                        const label = document.createElement('label');
+                        label.textContent = key.charAt(0).toUpperCase() + key.slice(1) + ':';
+                        label.setAttribute('for', key); // Set label for attribute
+
+                        let input;
+                        if (key === 'enable_promotion' || key === 'active') {
+                            // For boolean fields, create a checkbox
+                            input = document.createElement('input');
+                            input.type = 'checkbox';
+                            input.checked = userData[key];
+                            input.name = key; // Set input name attribute
+                        } else {
+                            // For other fields, create an input field
+                            input = document.createElement('input');
+                            input.type = 'text';
+                            input.value = userData[key] || ''; // Set initial value as current value
+                            input.name = key; // Set input name attribute
+                        }
+
+                        // Append label and input to info item
+                        infoItem.appendChild(label);
+                        infoItem.appendChild(input);
+                        userDetailsContainer.appendChild(infoItem);
+                    }
+                }
+            } else {
+                throw new Error('Failed to load user data');
+            }
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            alert('Failed to load user data.');
+        }
+
+        // Add event listener to form submission
+        document.getElementById("editProfileForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            // Form data
+            const formData = {};
+            const formElements = this.elements;
+            for (let i = 0; i < formElements.length; i++) {
+                const element = formElements[i];
+                if (element.name) {
+                    formData[element.name] = element.type === 'checkbox' ? element.checked : element.value;
+                }
+            }
+
+            // Send PUT request to update user
+            try {
+                const response = await fetch(`/api/users/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                if (response.ok) {
+                    console.log('User data updated successfully.');
+                    alert('User data updated successfully.');
+                    window.location.href = 'adminprofile.html'; // Redirect to adminprofile.html after updating
+                } else {
+                    throw new Error('Failed to update user data.');
+                }
+            } catch (error) {
+                console.error('Error updating user:', error);
+                alert('Failed to update user data.');
+            }
+        });
+    });
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Finalize Order</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="header">
+    <nav>
+        <h3>E-Cinema Booking</h3>
+        <ul class="nav-links">
+            <li><a id="cancelOrderLink" href="#">Cancel Order</a></li>
+        </ul>
+    </nav>
+</div>
+<div class="container">
+    <div class="wave"></div>
+    <h2>Order Details</h2>
+    <button class="dropdown-button">View Order Details</button>
+    <div id="orderDetails" class="dropdown-content">
+        <!-- Order details will be inserted here -->
+    </div>
+    <button id="viewSeatsBtn">View Seats</button>
+
+</div>
+
+<script>
+    let thisShowtimeId = null;
+    let totalTickets = 0
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const queryParams = new URLSearchParams(window.location.search);
+        const orderId = queryParams.get('orderId');
+
+        // Fetch and display order details
+        fetchOrderDetails(orderId);
+
+        // Setup the dropdown toggle for order details
+        setupDropdown();
+
+        // Setup cancel order functionality
+        const cancelLink = document.getElementById('cancelOrderLink');
+        cancelLink.addEventListener('click', function(event) {
+            event.preventDefault();
+            cancelOrder(orderId);
+        });
+
+        // Setup view seats button
+        const viewSeatsBtn = document.getElementById('viewSeatsBtn');
+        viewSeatsBtn.addEventListener('click', function() {
+            if (!thisShowtimeId) {
+                alert("Showtime ID is missing. Cannot view seats.");
+                return;
+            }
+            viewSeats(thisShowtimeId);
+        });
+    });
+
+    function fetchOrderDetails(orderId) {
+        if (!orderId) {
+            alert('Order ID is missing from the URL.');
+            return;
+        }
+
+        fetch(`/api/orders/${orderId}`)
+            .then(response => response.json())
+            .then(order => {
+                if (!order) {
+                    alert('Order not found.');
+                    return;
+                }
+                displayOrderDetails(order);
+                thisShowtimeId = order.showtime_id;
+                totalTickets = order.total_tickets;
+            })
+            .catch(error => {
+                console.error('Error fetching order details:', error);
+                alert('Failed to fetch order details.');
+            });
+    }
+
+    function displayOrderDetails(order) {
+        const orderDetailsElement = document.getElementById('orderDetails');
+        orderDetailsElement.innerHTML = `
+        <p>Order ID: ${order.order_id}</p>
+        <p>User ID: ${order.user_id}</p>
+        <p>Showtime ID: ${order.showtime_id}</p>
+        <p>Movie Title: ${order.movie_title}</p>
+        <p>Showtime: ${new Date(order.showtime_datetime).toLocaleString()}</p>
+        <p>Adult Tickets: ${order.num_adult_tickets}</p>
+        <p>Senior Tickets: ${order.num_senior_tickets}</p>
+        <p>Child Tickets: ${order.num_child_tickets}</p>
+        <p>Total Tickets: ${order.total_tickets}</p>
+        <p>Total Price: $${order.total_price}</p>
+        <p>Status: ${order.status}</p>
+    `;
+    }
+
+    function setupDropdown() {
+        document.querySelector('.dropdown-button').onclick = function() {
+            const content = document.querySelector('.dropdown-content');
+            content.style.display = content.style.display === 'block' ? 'none' : 'block';
+        };
+    }
+
+    function cancelOrder(orderId) {
+        fetch(`/api/orders/cancel/${orderId}`, { method: 'PUT' })
+            .then(response => response.json())
+            .then(data => {
+                alert('Order canceled successfully');
+                window.location.href = `buyTickets.html`;
+            })
+            .catch(error => {
+                console.error('Error canceling order:', error);
+                alert('Error canceling the order.');
+            });
+    }
+
+    function viewSeats(showtimeId) {
+        console.log("Attempting to view seats for showtimeId:", showtimeId); // Debug log
+        fetch(`/api/seats/${showtimeId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.seats && data.unoccupiedSeats > 0) {
+                    alert(`There are ${data.unoccupiedSeats} unoccupied seats, and you have ${totalTickets} tickets to use.`);
+                } else {
+                    alert('Seats need to be generated...')
+                    createSeats(showtimeId);
+                }
+            })
+            .catch(error => {
+                console.error('Error checking seats:', error);
+                alert('Failed to check seats. Please try again.');
+            });
+    }
+
+
+    function createSeats(showtimeId) {
+        console.log("Creating seats for showtimeId:", showtimeId); // Debug log
+        fetch('/api/seats', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ showtimeId: showtimeId })
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert('Seats have been generated.');
+                viewSeats(thisShowtimeId);
+            })
+            .catch(error => {
+                console.error('Error creating seats:', error);
+                alert('Failed to create seats. Please try again.');
+            });
+    }
+
+
+</script>
+
+<div class="footer">
+    <div class="item">
+        <a>&copy; E-Cinema</a>
+    </div>
+</div>
+</body>
+</html>

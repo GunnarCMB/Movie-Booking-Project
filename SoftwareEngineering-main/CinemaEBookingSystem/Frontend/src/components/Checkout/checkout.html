@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <title>Checkout</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+
+<body>
+    <div class="header">
+        <nav>
+            <h3>E-Cinemma Booking</h3>
+            <ul class="nav-links">
+                <li><a href="../HomePage/home.html">Home</a></li>
+                <li><a href="../Profile/profile.html">View Profile</a></li>
+                <li class="btn">Book</li>
+            </ul>
+        </nav>
+    </div>
+    <div class="container">
+        <h2>Checkout</h2>
+        <p>Please review your order:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Movie</th>
+                    <th>Showtime</th>
+                    <th>Seat</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Table rows for selected seats will be dynamically populated here -->
+            </tbody>
+        </table>
+        <p class="total">Total: $0</p>
+        <p>Confirm your order:</p>
+        <button onclick="confirmOrder()">Confirm Order</button>
+        <button class="cancel" onclick="cancelOrder()">Cancel Order</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Retrieve selected seats from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedSeatsParam = urlParams.get('seats');
+    const selectedSeats = selectedSeatsParam ? JSON.parse(decodeURIComponent(selectedSeatsParam)) : [];
+
+            // Populate the table with selected seats
+            const tableBody = document.querySelector("tbody");
+            tableBody.innerHTML = "";
+            if (selectedSeats && selectedSeats.length > 0) {
+                selectedSeats.forEach(seat => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>Movie</td>
+                        <td>Showtime</td>
+                        <td>${seat}</td>
+                        <td>$10</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+
+            // Calculate and display total price
+            const totalPrice = selectedSeats ? selectedSeats.length * 10 : 0;
+            document.querySelector(".total").textContent = `Total: $${totalPrice}`;
+        });
+
+        function confirmOrder() {
+            alert("Order confirmed! Redirecting to payment page...");
+            // Redirect to payment page
+            window.location.href = "payment.html";
+        }
+
+        function cancelOrder() {
+            alert("Order canceled!");
+            // Redirect to home page or previous page
+            window.history.back();
+        }
+    </script>
+
+    <div class="footer">
+        <div class="item">
+            <a>&copy; E-Cinemma</a>
+        </div>
+    </div>
+</body>
+
+</html>

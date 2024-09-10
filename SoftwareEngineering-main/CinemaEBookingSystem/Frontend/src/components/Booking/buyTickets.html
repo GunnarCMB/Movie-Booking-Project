@@ -1,0 +1,52 @@
+<!-- buyTickets.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Movie Theater Booking</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<div class="header">
+    <nav>
+        <h3>E-Cinema Booking</h3>
+        <ul class="nav-links">
+            <li><a href="../HomePage/home.html">Home</a></li>
+            <li><a href="#" id="profileLink">View Profile</a></li>
+            <li><button id="logoutBtn" onclick="logout()">Logout</button></li>
+        </ul>
+    </nav>
+</div>
+<div class="container">
+    <h2>Movie Theater Booking</h2>
+    <div id="movieGrid" class="movie-grid">
+        <!-- Movie cards will be dynamically inserted here -->
+    </div>
+</div>
+<div class="footer">
+    <a>&copy; E-Cinema</a>
+</div>
+
+<script src="movieDataFetcher.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const username = localStorage.getItem('username');
+        const userType = localStorage.getItem('userType');
+        const profileLink = document.getElementById('profileLink');
+
+        // Ensuring user is logged in
+        if (username) {
+            profileLink.href = userType === '1' ? '../Admin/adminProfile.html' : '../Profile/profile.html';
+        } else {
+            // Redirect to login if not logged in
+            window.location.href = '../Login/login.html';
+        }
+    });
+
+    function logout() {
+        localStorage.clear(); // Clear all local storage data
+        window.location.href = '../HomePage/home.html'; // Redirect to home page after logout
+    }
+</script>
+</body>
+</html>

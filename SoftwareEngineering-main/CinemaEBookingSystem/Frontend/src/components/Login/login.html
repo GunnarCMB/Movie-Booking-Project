@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Login Page</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+
+<body>
+    <div class="header">
+        <nav>
+            <h3>E-Cinema Booking</h3>
+            <ul class="nav-links">
+                <li><a href="../HomePage/home.html">Home</a></li>
+                <li><a href="../Registration/registration.html">Create Account</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="container">
+        <div class="wave"></div>
+        <h2>Login</h2>
+        <form id="loginForm">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+
+            <button type="submit">Login</button>
+            <a href="forgotPassword.html">Forgot Password</a>
+            <p class="error" id="error"></p>
+        </form>
+    </div>
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value;
+            const errorMessage = document.getElementById("error");
+
+            // Client-side validation 
+            if (!username || !password) {
+                errorMessage.innerText = "Username and password are required";
+                return;
+            }
+
+            try {
+                const response = await fetch('/user/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.status === 200) {
+                    // successful login
+                    const userData = await response.json();
+                    localStorage.clear();
+                    localStorage.setItem('userID', userData.user_id);
+                    localStorage.setItem('username', userData.username); // or sessionStorage.setItem('username', username);
+                    localStorage.setItem('userType', userData.type);
+                    localStorage.setItem('enablePromotion', userData.enable_promotion);
+
+                    /**
+                    // Prepare and display the alert message
+                    const localStorageData = `
+                    User ID: ${localStorage.getItem('userID')}\n
+                    Username: ${localStorage.getItem('username')}\n
+                    User Type: ${localStorage.getItem('userType')}\n
+                    Promotions Enabled: ${localStorage.getItem('enablePromotion')}
+                    `;
+                    alert('Login Successful! Here are your details:\n' + localStorageData);
+                    */ // for testing
+
+                    if (userData.type === 1) { // Admin user
+                        window.location.href = '../Admin/adminProfile.html';
+                    } else { // Regular user
+                        window.location.href = '../Profile/profile.html';
+                    }
+                } else {
+                    const errorText = await response.text(); // Get the text from the response, which contains the error message
+                    errorMessage.innerText = errorText;
+                    if (response.status === 403) {
+                        setTimeout(() => {
+                            window.location.href = '../Registration/accountConfirmation.html';
+                        }, 3000); // Redirect to verification page after 4 seconds
+                    }
+                }
+            } catch (error) {
+                console.error('Login failed:', error);
+                errorMessage.innerText = "An error occurred during login. Please try again.";
+            }
+        });
+
+    </script>
+    
+    <div class="footer">
+        <div class="item">
+            <a>&copy; E-Cinema</a>
+        </div>
+    </div>
+</body>
+
+</html>

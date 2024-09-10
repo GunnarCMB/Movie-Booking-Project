@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seat Selection</title>
+    <link rel="stylesheet" type="text/css" href="../../style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+
+        .screen {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .seats {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .seat {
+            width: 30px;
+            height: 30px;
+            margin: 5px;
+            background-color: #bdc3c7;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .seat.selected {
+            background-color: #e74c3c;
+        }
+
+        .seat.occupied {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .seat:hover {
+            background-color: #2ecc71;
+        }
+
+        .legend {
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .legend-item span {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            border-radius: 3px;
+        }
+
+        .legend-item .available {
+            background-color: #bdc3c7;
+        }
+
+        .legend-item .selected {
+            background-color: #e74c3c;
+        }
+
+        .legend-item .occupied {
+            background-color: #95a5a6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="screen">Screen</h2>
+        <div class="seats">
+            <!-- 10 seats -->
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+            <div class="seat"></div>
+
+        </div>
+        <div class="legend">
+            <span class="legend-item available">Available: 50</span>
+            <span class="legend-item selected">Selected: 0</span>
+            <span class="legend-item occupied">Occupied: 0</span>
+        </div>
+        <button class="checkout-btn" onclick="redirectToCheckout()">Checkout</button>
+    </div>
+
+    <script>
+
+function redirectToCheckout() {
+    const selectedSeats = JSON.parse(localStorage.getItem("selectedSeats")) || []; // Retrieve selected seats
+    const selectedSeatsParam = encodeURIComponent(JSON.stringify(selectedSeats)); // Encode selected seats as URL parameter
+    // Redirect to checkout page with selected seats as URL parameter
+    window.location.href = "../Checkout/checkout.html?seats=" + selectedSeatsParam;
+}
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const seats = document.querySelectorAll(".seat");
+            const selectedCountDisplay = document.querySelector(".selected");
+            const occupiedCountDisplay = document.querySelector(".occupied");
+            const availableCountDisplay = document.querySelector(".available");
+            let selectedCount = 0;
+            let occupiedCount = 0;
+
+            // Update count displays
+            function updateCounts() {
+                availableCountDisplay.textContent = `Available: ${seats.length - selectedCount - occupiedCount}`;
+                selectedCountDisplay.textContent = `Selected: ${selectedCount}`;
+                occupiedCountDisplay.textContent = `Occupied: ${occupiedCount}`;
+            }
+
+            // Function to handle seat click
+            function seatClickHandler() {
+    if (!this.classList.contains("occupied")) {
+        const wasSelected = this.classList.contains("selected"); // Check if seat was previously selected
+        this.classList.toggle("selected");
+        if (this.classList.contains("selected")) {
+            selectedCount++;
+        } else {
+            selectedCount--;
+        }
+        updateCounts();
+        // Update localStorage based on current selection
+        const selectedSeats = JSON.parse(localStorage.getItem("selectedSeats")) || [];
+        const seatNumber = this.textContent;
+        if (wasSelected) {
+            // Remove seat from selectedSeats array if it was previously selected
+            localStorage.setItem("selectedSeats", JSON.stringify(selectedSeats.filter(seat => seat !== seatNumber)));
+        } else {
+            // Add seat to selectedSeats array if it is now selected
+            localStorage.setItem("selectedSeats", JSON.stringify([...selectedSeats, seatNumber]));
+        }
+    }
+}
+
+
+            // Add click event listener to seats
+            seats.forEach(seat => {
+                seat.addEventListener("click", seatClickHandler);
+            });
+
+            // Initial count update
+            updateCounts();
+        });
+    </script>
+</body>
+</html>

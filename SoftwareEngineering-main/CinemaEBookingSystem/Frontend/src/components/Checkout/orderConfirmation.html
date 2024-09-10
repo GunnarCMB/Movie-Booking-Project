@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Order Confirmation</title>
+    <link rel="stylesheet" href="../../style.css">
+</head>
+
+<body>
+    <div class="header">
+        <nav>
+            <h3>E-Cinemma Booking</h3>
+            <ul class="nav-links">
+                <li><a href="../HomePage/home.html">Home</a></li>
+                <li><a href="../Profile/profile.html">View Profile</a></li>
+                <li class="btn">Book</li>
+            </ul>
+        </nav>
+    </div>
+    <div class="container">
+        <h2>Order Confirmation</h2>
+        <p>Your order has been confirmed, you should be recieving an email with this information:</p>
+        <p><span class="confirmation">Booking Number:</span> #### </p>
+        <p><span class="confirmation">Movie:</span> Movie 1</p>
+        <p><span class="confirmation">Showtime:</span> Showtime 1</p>
+        <p><span class="confirmation">Seat:</span> Seat A1</p>
+        <p><span class="confirmation">Price:</span> $10</p>
+        <p><span class="confirmation">Total:</span> $10</p>
+        <button onclick="returnToHome()">Return to Home</button>
+    </div>
+
+    <script>
+        function returnToHome() {
+            // Redirect to home page
+            window.location.href = "index.html";
+        }
+    </script>
+
+    <div class="footer">
+        <div class="item">
+            <a>&copyE-Cinemma</a>
+        </div>
+    </div>
+</body>
+
+</html>
+
