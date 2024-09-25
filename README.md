@@ -1,5 +1,6 @@
 Movie Booking Interface ( Javascript/HTML Webpage )
 -----
+developed by Hunter Mcvay and I
 
 ```bash
 !! database is no longer being hosted externally !!
