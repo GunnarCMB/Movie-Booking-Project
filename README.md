@@ -1,6 +1,6 @@
 Movie Booking Interface ( Javascript/HTML Webpage )
 -----
-developed by Hunter Mcvay and Gunnar Balch(me)
+Group Project developed by Hunter Mcvay and Gunnar Balch(me)
 
 ```bash
 !! database is no longer being hosted externally !!
